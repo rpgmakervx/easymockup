@@ -25,16 +25,18 @@ public class DynamicCodeHandler implements HttpHandler {
         PrintStream ps = new PrintStream(baos);
         PrintStream print = System.out;
         System.setOut(ps);
+
         Json json = request.getJson();
         String sourceCode = (String) json.get("code");
+
         JavaStringCompiler compiler = new JavaStringCompiler();
         Map<String, byte[]> results = compiler.compile("Main.java", sourceCode);
-        Class<?> clazz = compiler.loadClass("org.easyarch.easymockup.Main", results);
+        Class<?> clazz = compiler.loadClass("Main", results);
 
         Method method = clazz.getDeclaredMethod("main", String[].class);
         method.invoke(null,(Object)null);
         System.setOut(print);
         response.json(new Json("result",new String(baos.getBytes())));
-        System.out.println("invoke result:"+new String(baos.getBytes()));
+//        System.out.println("invoke result:"+new String(baos.getBytes()));
     }
 }

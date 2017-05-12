@@ -50,18 +50,32 @@
             myTextarea = document.getElementById("functionContent");
             editor = CodeMirror.fromTextArea(myTextarea, {
                 mode: "text/x-java",
-                lineNumbers:true,
+                lineNumbers: true,
                 matchBrackets: true,
                 autoCloseBrackets: true,
-                smartIndent:true,
-                lineWrapping:true,
+                smartIndent: true,
+                lineWrapping: true,
                 foldGutter: true,
-                gutters:["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+                gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
                 extraKeys: {"Ctrl": "autocomplete"}
             });
             initDelBtn();
+            $("#fileBtn").on("click", function () {
+                var fileForm = $("#file")[0];
+                var formData = new FormData();
+                formData.append("html",fileForm.files[0]);
+                $.ajax({
+                    url: "/upload/page",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        alert("文件已上传")
+                    }
+                });
+            })
         })
-
 		function initDelBtn(){
             $(".delBtn").on("click",function () {
                 $(this).parent().parent("tr").remove();
@@ -82,6 +96,7 @@
 				var paramName = $(inputed).children("input").val();
 				var paramType = $(select).children("select").val();
 				input.push({paramname:paramName,paramtype:paramType});
+				//[{paramname:username,paramtype:string},{}]
 			}
             for (var index=0;index<outputtr.length;index++){
                 var td = $(outputtr[index]).children("td");
@@ -96,6 +111,7 @@
 		}
 		function genApiData() {
             var form = $("#apiForm");
+            form.children().remove();
             var url = $("#apiName").val();
             form.attr("action",url);
             form.attr("method",method);
@@ -118,9 +134,10 @@
                 return false;
             });
         }
-
+		var json;
 		function sendHttpApi(request) {
 		    var type = $("#returnStruct").val();
+		    json = request;
             $.ajax({
                 url: "http://localhost:3000/api/"+type,
                 data: JSON.stringify(request),
@@ -329,8 +346,14 @@
 									<div class="col-lg-2">
 										<h4>输出页面:</h4>
 									</div>
-									<div class="col-lg-6">
+									<div class="col-lg-3">
 										<input type="text" id="page" class="form-control" placeholder="输出页面的文件名即可">
+									</div>
+									<div class="col-lg-3">
+										<form id="formPage" method="post" action="/upload/page" enctype="multipart/form-data">
+											<input type="file" id="file" name="html" class="form-control" placeholder="选择一个标准的html文件">
+											<button type='button' id="fileBtn" class='btn btn-outline btn-default' style='margin-right: 15px'>上传</button>
+										</form>
 									</div>
 								</div>
 								<div class="row" style="margin-top: 15px">
@@ -419,31 +442,6 @@
 									</div>
 									<div class="col-lg-10">
 										<textarea id="functionContent" rows="15" cols="100">
-package org.easyarch.easymockup;
-
-import org.easyarch.easymockup.handler.*;
-import org.easyarch.netpet.web.server.App;
-
-/**
- * Created by xingtianyu on 17-5-7
- * 下午1:23
- * description:
- */
-
-public class Application {
-
-	public static void main(String[] args) {
-		App app = new App();
-		app.config().notFound("404");
-		app.get("/index",new IndexPageHandler())
-				.get("/test",new TestPageHandler())
-				.post("/api/string",new StringApiHandler(app))
-				.post("/api/json",new JsonApiHandler(app))
-				.post("/api/html",new PageApiHandler(app))
-				.post("/code/run",new DynamicCodeHandler())
-		.start(3000);
-	}
-}
 										</textarea>
 									</div>
 								</div>

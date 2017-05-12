@@ -28,15 +28,20 @@ public class JsonApiHandler implements HttpHandler {
 
     @Override
     public void handle(HandlerRequest request, HandlerResponse response) throws Exception {
+        //获取json对象
         Json jsonData = request.getJson();
+        //interface
         String interfas = (String) jsonData.get("interface");
+        //method
         String method = (String) jsonData.get("method");
         final List<Map<String,String>> inputs = (List<Map<String, String>>) jsonData.get("input");
         final List<Map<String,String>> outputs = (List<Map<String, String>>) jsonData.get("output");
+
         HttpHandler handler = new HttpHandler() {
             @Override
             public void handle(HandlerRequest request, HandlerResponse response) throws Exception {
                 Json json = new Json();
+                //校验输入参数格式
                 for (Map<String,String> params : inputs){
                     String pName = params.get("paramname");
                     String data = request.getParam(pName);
@@ -45,6 +50,7 @@ public class JsonApiHandler implements HttpHandler {
                         return;
                     }
                 }
+                //
                 for (Map<String,String> params : outputs){
                     String pName = params.get("paramname");
                     String pType = params.get("paramtype");
@@ -59,7 +65,6 @@ public class JsonApiHandler implements HttpHandler {
             case "PUT":app.put(interfas,handler);break;
             case "DELETE":app.delete(interfas,handler);break;
         }
-
         response.json(new Json("code",200,"message","ok"));
     }
 
